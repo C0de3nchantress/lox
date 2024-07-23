@@ -100,6 +100,8 @@ class Scanner {
                     // A comment goes until end of the line
                     while (peek() != '\n' && !isAtEnd())
                         advance();
+                } else if (match('*')) {
+                    multiLineComment();
                 } else {
                     addToken(SLASH);
                 }
@@ -176,6 +178,20 @@ class Scanner {
         // Trim the surrounding quotes
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void multiLineComment() {
+        while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        if (!isAtEnd()) {
+            advance();
+            advance();
+        } else {
+            Lox.error(line, "Unterminated multi-line comment");
+        }
     }
 
     private boolean match(char expected) {
